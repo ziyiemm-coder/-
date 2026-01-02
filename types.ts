@@ -27,7 +27,7 @@ export interface LearningState {
   lastReviewed?: number;
 }
 
-export type ViewMode = 'dashboard' | 'flashcards' | 'spelling' | 'derivatives' | 'cloze' | 'test' | 'mistakes';
+export type ViewMode = 'dashboard' | 'flashcards' | 'spelling' | 'derivatives' | 'cloze' | 'test' | 'mistakes' | 'meaning';
 
 export interface TestResult {
   date: number;

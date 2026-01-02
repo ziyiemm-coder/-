@@ -1,9 +1,10 @@
 
+// Updated hardcoded 54 to VOCABULARY_DATA.length in the Fast Learn card.
 import React from 'react';
 import { VOCABULARY_DATA } from '../data/vocabulary';
 import { LearningState, ViewMode } from '../types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Target, Zap, Clock, Star, ArrowUpRight } from 'lucide-react';
+import { Target, Zap, Clock, Star, ArrowUpRight, HelpCircle } from 'lucide-react';
 
 interface DashboardProps {
   states: Record<number, LearningState>;
@@ -104,7 +105,7 @@ const Dashboard: React.FC<DashboardProps> = ({ states, onNavigate }) => {
       </div>
 
       {/* Recommended Learning Path */}
-      <div className="md:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-4 grid grid-cols-1 md:grid-cols-4 gap-6">
          <button 
            onClick={() => onNavigate('flashcards')}
            className="group p-8 bg-indigo-600 text-white rounded-3xl shadow-xl shadow-indigo-500/20 hover:scale-[1.02] transition-all flex flex-col items-start"
@@ -113,9 +114,23 @@ const Dashboard: React.FC<DashboardProps> = ({ states, onNavigate }) => {
                <Zap size={24} />
             </div>
             <h4 className="text-xl font-bold mb-2">Fast Learn</h4>
-            <p className="text-white/70 text-sm text-left mb-6">Review all 54 words using interactive 3D cards.</p>
+            <p className="text-white/70 text-sm text-left mb-6">Review all {VOCABULARY_DATA.length} words using interactive 3D cards.</p>
             <div className="mt-auto flex items-center gap-2 font-bold text-sm">
                Jump In <ArrowUpRight size={16} />
+            </div>
+         </button>
+
+         <button 
+           onClick={() => onNavigate('meaning')}
+           className="group p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 hover:scale-[1.02] transition-all flex flex-col items-start"
+         >
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-500 rounded-2xl mb-6">
+               <HelpCircle size={24} />
+            </div>
+            <h4 className="text-xl font-bold mb-2">Meaning Mastery</h4>
+            <p className="text-slate-500 dark:text-slate-400 text-sm text-left mb-6">Challenge your definition knowledge.</p>
+            <div className="mt-auto flex items-center gap-2 font-bold text-sm text-amber-500">
+               Test Now <ArrowUpRight size={16} />
             </div>
          </button>
 
@@ -127,7 +142,7 @@ const Dashboard: React.FC<DashboardProps> = ({ states, onNavigate }) => {
                <Clock size={24} />
             </div>
             <h4 className="text-xl font-bold mb-2">Practice Mode</h4>
-            <p className="text-slate-500 dark:text-slate-400 text-sm text-left mb-6">Master spelling and phonetics of your target words.</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm text-left mb-6">Master spelling and phonetics of words.</p>
             <div className="mt-auto flex items-center gap-2 font-bold text-sm text-emerald-500">
                Continue <ArrowUpRight size={16} />
             </div>

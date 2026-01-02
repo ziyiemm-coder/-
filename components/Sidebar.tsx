@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ViewMode } from '../types';
-import { LayoutDashboard, Layers, SpellCheck, Type, Pencil, ClipboardCheck, AlertCircle, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, Layers, SpellCheck, Type, Pencil, ClipboardCheck, AlertCircle, Moon, Sun, HelpCircle } from 'lucide-react';
 
 interface SidebarProps {
   currentView: ViewMode;
@@ -16,6 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, progress, darkM
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'flashcards', icon: Layers, label: 'Flashcards' },
     { id: 'spelling', icon: SpellCheck, label: 'Spelling' },
+    { id: 'meaning', icon: HelpCircle, label: 'Meaning' },
     { id: 'derivatives', icon: Type, label: 'Derivatives' },
     { id: 'cloze', icon: Pencil, label: 'Contextual' },
     { id: 'test', icon: ClipboardCheck, label: 'Mock Test' },

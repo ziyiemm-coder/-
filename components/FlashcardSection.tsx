@@ -10,9 +10,12 @@ interface FlashcardSectionProps {
 }
 
 const FlashcardSection: React.FC<FlashcardSectionProps> = ({ states, onUpdateState }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // 初始索引改为随机，增加趣味性
+  const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * VOCABULARY_DATA.length));
   const [isFlipped, setIsFlipped] = useState(false);
-  const [shuffledOrder, setShuffledOrder] = useState<number[]>(VOCABULARY_DATA.map((_, i) => i));
+  const [shuffledOrder, setShuffledOrder] = useState<number[]>(() => 
+    VOCABULARY_DATA.map((_, i) => i).sort(() => Math.random() - 0.5)
+  );
 
   const currentWord = useMemo(() => VOCABULARY_DATA[shuffledOrder[currentIndex]], [currentIndex, shuffledOrder]);
   const currentState = states[currentWord.id];
@@ -49,28 +52,28 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({ states, onUpdateSta
   return (
     <div className="flex flex-col items-center gap-8 py-4">
       <div className="w-full max-w-lg flex items-center justify-between mb-2">
-         <span className="text-sm font-medium text-slate-500">Card {currentIndex + 1} of {VOCABULARY_DATA.length}</span>
+         <span className="text-sm font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">Card {currentIndex + 1} / {VOCABULARY_DATA.length}</span>
          <button 
            onClick={shuffleCards}
-           className="flex items-center gap-2 text-sm text-indigo-500 hover:text-indigo-600 transition-colors"
+           className="flex items-center gap-2 text-sm font-bold text-indigo-500 hover:text-indigo-600 transition-colors"
          >
-           <Shuffle size={16} /> Shuffle
+           <Shuffle size={16} /> Reshuffle Pool
          </button>
       </div>
 
       {/* 3D Flashcard */}
       <div 
-        className="w-full max-w-lg h-96 perspective-1000 cursor-pointer group"
+        className="w-full max-w-lg h-[450px] perspective-1000 cursor-pointer group"
         onClick={handleFlip}
       >
         <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
           
           {/* Front Side */}
-          <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8">
+          <div className="absolute inset-0 backface-hidden flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700 p-8">
             <div className="absolute top-6 right-6 flex gap-2">
                 <Star 
-                  size={24} 
-                  className={currentState.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'} 
+                  size={28} 
+                  className={currentState.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200'} 
                   onClick={(e) => {
                     e.stopPropagation();
                     onUpdateState(currentWord.id, { isFavorite: !currentState.isFavorite });
@@ -78,62 +81,62 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({ states, onUpdateSta
                 />
             </div>
             
-            <h2 className="text-5xl font-bold text-slate-800 dark:text-white mb-4">{currentWord.term}</h2>
-            <div className="flex items-center gap-3 text-indigo-500 dark:text-indigo-400 mb-6">
-               <span className="text-lg italic">{currentWord.phonetic}</span>
+            <h2 className="text-6xl font-black text-slate-800 dark:text-white mb-6 tracking-tight">{currentWord.term}</h2>
+            <div className="flex items-center gap-4 text-indigo-500 dark:text-indigo-400 mb-8">
+               <span className="text-2xl font-medium tracking-wide">{currentWord.phonetic}</span>
                <button 
                 onClick={(e) => {
                   e.stopPropagation();
                   speak(currentWord.term);
                 }}
-                className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-full hover:scale-110 transition-transform"
+                className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-full hover:scale-110 active:scale-95 transition-all shadow-sm"
                >
-                 <Volume2 size={20} />
+                 <Volume2 size={24} />
                </button>
             </div>
             
-            <div className="mt-8 flex items-center gap-2 text-slate-400 text-sm animate-pulse">
-               <RotateCw size={16} />
-               Click to reveal definition
+            <div className="mt-12 flex items-center gap-2 text-slate-400 text-sm font-bold animate-bounce">
+               <RotateCw size={18} />
+               TAP TO FLIP
             </div>
           </div>
 
           {/* Back Side */}
-          <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 overflow-y-auto">
-            <div className="flex justify-between items-start mb-6">
+          <div className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700 p-8 overflow-y-auto">
+            <div className="flex justify-between items-start mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
                <div>
-                 <span className="text-xs font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">{currentWord.pos}</span>
-                 <h3 className="text-2xl font-bold mt-2">{currentWord.term}</h3>
+                 <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg">{currentWord.pos}</span>
+                 <h3 className="text-3xl font-black mt-3 text-slate-800 dark:text-white">{currentWord.term}</h3>
                </div>
                <button 
                  onClick={(e) => {
                    e.stopPropagation();
                    onUpdateState(currentWord.id, { isMastered: !currentState.isMastered });
                  }}
-                 className={`p-2 rounded-xl transition-all ${currentState.isMastered ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-300 dark:bg-slate-700'}`}
+                 className={`p-3 rounded-2xl transition-all shadow-sm ${currentState.isMastered ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400 dark:bg-slate-700'}`}
                >
-                 <CheckCircle size={24} className={currentState.isMastered ? 'fill-emerald-50' : ''} />
+                 <CheckCircle size={28} />
                </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <p className="text-lg font-medium text-slate-800 dark:text-slate-200">{currentWord.definitionZh}</p>
-                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{currentWord.definitionEn}</p>
+                <p className="text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight">{currentWord.definitionZh}</p>
+                <p className="text-slate-500 dark:text-slate-400 text-md mt-2 font-medium leading-relaxed italic">{currentWord.definitionEn}</p>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border-l-4 border-indigo-400">
-                <p className="text-slate-700 dark:text-slate-300 font-medium italic">"{currentWord.exampleEn}"</p>
-                <p className="text-slate-500 text-sm mt-2">{currentWord.exampleZh}</p>
+              <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border-l-4 border-indigo-500 shadow-inner">
+                <p className="text-slate-700 dark:text-slate-200 font-bold italic text-lg leading-relaxed">"{currentWord.exampleEn}"</p>
+                <p className="text-slate-500 text-md mt-3 font-medium">{currentWord.exampleZh}</p>
               </div>
 
-              {currentWord.derivatives.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Derivatives</h4>
+              {currentWord.derivatives && currentWord.derivatives.length > 0 && (
+                <div className="pt-2">
+                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-3">Family Members</h4>
                   <div className="flex flex-wrap gap-2">
                     {currentWord.derivatives.map(d => (
-                      <span key={d.word} className="text-xs font-medium px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                        {d.word} ({d.pos})
+                      <span key={d.word} className="text-sm font-bold px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-100 dark:border-indigo-900/40">
+                        {d.word} <span className="text-[10px] opacity-60">({d.pos})</span>
                       </span>
                     ))}
                   </div>
@@ -144,26 +147,26 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({ states, onUpdateSta
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 mt-4">
         <button 
           onClick={prevCard}
-          className="p-4 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 hover:scale-110 active:scale-95 transition-all text-indigo-500"
+          className="p-5 bg-white dark:bg-slate-800 rounded-full shadow-xl border border-slate-100 dark:border-slate-700 hover:scale-110 active:scale-95 transition-all text-indigo-500 group"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft size={32} className="group-hover:-translate-x-1 transition-transform" />
         </button>
         
         <button 
           onClick={nextCard}
-          className="px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all"
+          className="px-12 py-5 bg-indigo-600 text-white text-lg font-black rounded-[2rem] shadow-2xl shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
         >
-          Next Random
+          NEXT WORD <ChevronRight size={20} />
         </button>
 
         <button 
           onClick={nextCard}
-          className="p-4 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 hover:scale-110 active:scale-95 transition-all text-indigo-500"
+          className="p-5 bg-white dark:bg-slate-800 rounded-full shadow-xl border border-slate-100 dark:border-slate-700 hover:scale-110 active:scale-95 transition-all text-indigo-500 group"
         >
-          <ChevronRight size={24} />
+          <ChevronRight size={32} className="group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </div>

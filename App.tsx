@@ -1,4 +1,5 @@
 
+// Updated hardcoded 54 to VOCABULARY_DATA.length to reflect actual data size.
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { VOCABULARY_DATA } from './data/vocabulary';
 import { ViewMode, LearningState, Word } from './types';
@@ -9,6 +10,7 @@ import FillBlanksSection from './components/FillBlanksSection';
 import TestSection from './components/TestSection';
 import MistakesSection from './components/MistakesSection';
 import DerivativesSection from './components/DerivativesSection';
+import MeaningSection from './components/MeaningSection';
 import Sidebar from './components/Sidebar';
 import { BookOpen, Trophy, AlertTriangle, Layers, Type, SpellCheck, Settings } from 'lucide-react';
 
@@ -81,6 +83,7 @@ const App: React.FC = () => {
               {viewMode === 'dashboard' && 'Welcome back, ready to learn?'}
               {viewMode === 'flashcards' && 'Swipe through your 3D flashcards'}
               {viewMode === 'spelling' && 'Perfect your spelling and dictation'}
+              {viewMode === 'meaning' && 'Test your knowledge of word definitions'}
               {viewMode === 'cloze' && 'Practice vocabulary in context'}
               {viewMode === 'test' && 'Challenge yourself with a mock test'}
               {viewMode === 'mistakes' && 'Review your difficult words'}
@@ -91,7 +94,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
              <div className="flex flex-col items-end">
                 <span className="text-sm font-medium">Mastery Progress</span>
-                <span className="text-xs text-slate-500">{masteredCount}/54 words</span>
+                <span className="text-xs text-slate-500">{masteredCount}/{VOCABULARY_DATA.length} words</span>
              </div>
              <div className="w-24 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div 
@@ -117,6 +120,12 @@ const App: React.FC = () => {
           )}
           {viewMode === 'spelling' && (
             <SpellingSection 
+              states={learningStates} 
+              onUpdateState={updateState} 
+            />
+          )}
+          {viewMode === 'meaning' && (
+            <MeaningSection 
               states={learningStates} 
               onUpdateState={updateState} 
             />
