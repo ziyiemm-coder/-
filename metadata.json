@@ -1,0 +1,7 @@
+{
+  "name": "VocabMaster Pro: 54 Core Vocabulary Trainer",
+  "description": "A comprehensive vocabulary learning platform for mastering 54 essential English words through 3D flashcards, spelling drills, derivative expansion, and context-based practice.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
