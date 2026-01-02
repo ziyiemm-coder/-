@@ -1,8 +1,8 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { VOCABULARY_DATA } from '../data/vocabulary';
-import { LearningState, Word, Derivative } from '../types';
-import { Network, Plus, Info, CheckCircle, Brain, BookOpen, ChevronRight, HelpCircle, RefreshCw } from 'lucide-react';
+import { LearningState } from '../types';
+import { Network, Plus, Info, CheckCircle, Brain, BookOpen, ChevronRight, RefreshCw, Shuffle } from 'lucide-react';
 
 interface DerivativesSectionProps {
   states: Record<number, LearningState>;
@@ -32,21 +32,19 @@ const DerivativesSection: React.FC<DerivativesSectionProps> = ({ states, onUpdat
     }
   };
 
-  const nextPractice = () => {
+  const nextDerivative = () => {
     setPracticeInput('');
     setPracticeFeedback(null);
     if (currentDerivatives.length > 1) {
       setCurrentDerivativeIndex((prev) => (prev + 1) % currentDerivatives.length);
     } else {
-      // Pick a random word if this one only has one derivative
-      const nextWord = VOCABULARY_DATA[Math.floor(Math.random() * VOCABULARY_DATA.length)];
-      setSelectedWord(nextWord);
-      setCurrentDerivativeIndex(0);
+      randomNextWord();
     }
   };
 
   const randomNextWord = () => {
-    const nextWord = VOCABULARY_DATA[Math.floor(Math.random() * VOCABULARY_DATA.length)];
+    const wordsWithDerivatives = VOCABULARY_DATA.filter(w => w.derivatives.length > 0);
+    const nextWord = wordsWithDerivatives[Math.floor(Math.random() * wordsWithDerivatives.length)];
     setSelectedWord(nextWord);
     setCurrentDerivativeIndex(0);
     setPracticeInput('');
@@ -81,7 +79,7 @@ const DerivativesSection: React.FC<DerivativesSectionProps> = ({ states, onUpdat
              >
                <div className="flex justify-between items-center">
                   <span className={`font-medium ${selectedWord.id === word.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}`}>
-                    {word.term} <span className="text-xs text-slate-400 font-normal">({word.pos})</span>
+                    {word.term} <span className="text-xs text-slate-400 font-normal ml-1">({word.pos})</span>
                   </span>
                   {states[word.id].isMastered && <CheckCircle size={14} className="text-emerald-500" />}
                </div>
@@ -111,10 +109,10 @@ const DerivativesSection: React.FC<DerivativesSectionProps> = ({ states, onUpdat
 
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 min-h-[500px]">
            {activeTab === 'learn' ? (
-             <>
+             <div className="animate-in fade-in duration-300">
                <div className="flex items-center gap-4 mb-8">
                   <div className="p-4 bg-indigo-500 text-white rounded-2xl shadow-lg">
-                    <h2 className="text-3xl font-black">{selectedWord.term} <span className="text-xl font-normal opacity-80">({selectedWord.pos})</span></h2>
+                    <h2 className="text-3xl font-black">{selectedWord.term} <span className="text-xl font-normal opacity-80 ml-2">({selectedWord.pos})</span></h2>
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Master Root</span>
@@ -160,40 +158,56 @@ const DerivativesSection: React.FC<DerivativesSectionProps> = ({ states, onUpdat
                     )}
                   </div>
                </div>
-             </>
+             </div>
            ) : (
-             <div className="flex flex-col h-full">
+             <div className="flex flex-col h-full animate-in fade-in duration-300">
                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                  <RefreshCw size={20} className="text-indigo-500" />
-                 Derivative Practice
+                 Transformation Practice
                </h3>
                
                {currentPracticeTarget ? (
-                 <div className="space-y-8">
-                    <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
-                       <p className="text-sm font-bold text-indigo-400 uppercase mb-4">Transform the Root:</p>
-                       <div className="flex items-center gap-4">
-                          <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
-                             {selectedWord.term}
-                          </div>
-                          <ChevronRight className="text-slate-300" />
-                          <div className="px-3 py-1 bg-white dark:bg-slate-700 rounded-lg text-xs font-bold shadow-sm">
+                 <div className="space-y-6">
+                    {/* Practice Card */}
+                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+                       <div className="absolute top-0 right-0 p-4">
+                          <div className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-full text-xs font-black tracking-widest uppercase">
                              {currentPracticeTarget.pos}
                           </div>
                        </div>
-                       <p className="mt-4 text-slate-500 italic">Target meaning: {currentPracticeTarget.definition}</p>
+                       
+                       <div className="flex flex-col md:flex-row gap-8 items-start">
+                          <div className="flex-1 space-y-4">
+                             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Sentence Transformation</span>
+                             <p className="text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                               {currentPracticeTarget.example 
+                                 ? currentPracticeTarget.example.replace(new RegExp(currentPracticeTarget.word, 'gi'), '__________')
+                                 : `Please provide the correct ${currentPracticeTarget.pos} form of the root in this context: __________`}
+                             </p>
+                             <p className="text-sm text-slate-500 dark:text-slate-400 italic">
+                               Target meaning: {currentPracticeTarget.definition}
+                             </p>
+                          </div>
+
+                          <div className="w-full md:w-48 shrink-0">
+                             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col items-center text-center">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase mb-2">Root Word</span>
+                                <div className="text-xl font-black text-indigo-600 dark:text-indigo-400 mb-1">{selectedWord.term}</div>
+                                <div className="text-[10px] text-slate-500">({selectedWord.pos})</div>
+                             </div>
+                          </div>
+                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                       <label className="text-xs font-bold text-slate-400 uppercase">Input the correct form:</label>
+                    <div className="space-y-4 max-w-xl mx-auto">
                        <div className="relative">
                           <input 
                             type="text"
                             value={practiceInput}
                             onChange={(e) => setPracticeInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleCheckPractice()}
-                            placeholder={`Enter the ${currentPracticeTarget.pos} form...`}
-                            className={`w-full p-4 text-xl rounded-2xl border-2 outline-none transition-all ${
+                            placeholder={`Type the ${currentPracticeTarget.pos} form...`}
+                            className={`w-full p-5 text-xl rounded-2xl border-2 outline-none transition-all ${
                               practiceFeedback === 'correct' ? 'border-emerald-500 bg-emerald-50 text-emerald-600' :
                               practiceFeedback === 'incorrect' ? 'border-rose-500 bg-rose-50 text-rose-600' :
                               'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 focus:border-indigo-500'
@@ -201,30 +215,45 @@ const DerivativesSection: React.FC<DerivativesSectionProps> = ({ states, onUpdat
                           />
                           {practiceFeedback === 'correct' && <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500" />}
                        </div>
+                       
                        {practiceFeedback === 'incorrect' && (
-                         <p className="text-rose-500 text-sm font-medium">Try again or check the correct answer: <span className="underline font-bold">{currentPracticeTarget.word}</span></p>
+                         <div className="p-4 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-xl text-sm font-medium animate-in slide-in-from-top-2">
+                           Hint: The correct word is <span className="font-bold underline">{currentPracticeTarget.word}</span>
+                         </div>
                        )}
-                    </div>
 
-                    <div className="flex gap-4 pt-4">
-                       <button 
-                         onClick={handleCheckPractice}
-                         className="flex-1 py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:bg-indigo-700 transition-all"
-                       >
-                         Check Answer
-                       </button>
-                       <button 
-                         onClick={randomNextWord}
-                         className="flex-1 py-4 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
-                       >
-                         Random Next Word <ChevronRight size={18} />
-                       </button>
+                       <div className="flex gap-4">
+                          {!practiceFeedback ? (
+                             <button 
+                               onClick={handleCheckPractice}
+                               disabled={!practiceInput.trim()}
+                               className="flex-1 py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:bg-indigo-700 disabled:opacity-50 transition-all"
+                             >
+                               Check Answer
+                             </button>
+                          ) : (
+                             <>
+                               <button 
+                                 onClick={nextDerivative}
+                                 className="flex-1 py-4 bg-slate-800 dark:bg-slate-700 text-white font-bold rounded-2xl shadow-lg hover:bg-slate-900 transition-all flex items-center justify-center gap-2"
+                               >
+                                 Next Question <ChevronRight size={18} />
+                               </button>
+                               <button 
+                                 onClick={randomNextWord}
+                                 className="flex-1 py-4 bg-indigo-500 text-white font-bold rounded-2xl shadow-lg hover:bg-indigo-600 transition-all flex items-center justify-center gap-2"
+                               >
+                                 Random Next Root <Shuffle size={18} />
+                               </button>
+                             </>
+                          )}
+                       </div>
                     </div>
                  </div>
                ) : (
                  <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                     <p>No practice items for this root yet.</p>
-                    <button onClick={randomNextWord} className="mt-4 text-indigo-500 font-bold hover:underline">Try another word</button>
+                    <button onClick={randomNextWord} className="mt-4 px-6 py-2 bg-indigo-500 text-white rounded-xl font-bold hover:bg-indigo-600">Try another word</button>
                  </div>
                )}
              </div>
